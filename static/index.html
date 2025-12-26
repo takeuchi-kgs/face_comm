@@ -93,21 +93,24 @@
                             <button id="clear-text-btn" class="action-btn">クリア</button>
                         </div>
                     </div>
-                    <div class="char-selector">
-                        <div class="row-selector">
-                            <span class="nav-hint">◀ 左傾き: 前の行</span>
+                    <div class="char-selector-vertical">
+                        <div class="group-nav">
+                            <span class="nav-hint">◀ 左傾き: 前グループ</span>
                             <span id="current-row" class="current-row">あ行</span>
-                            <span class="nav-hint">右傾き: 次の行 ▶</span>
+                            <span class="nav-hint">右傾き: 次グループ ▶</span>
                         </div>
-                        <div class="char-grid" id="char-grid">
+                        <div class="char-list-container">
+                            <div class="char-list" id="char-list">
+                                <!-- 動的に生成 -->
+                            </div>
+                            <div class="selection-indicator"></div>
+                        </div>
+                        <div class="group-indicator" id="group-indicator">
                             <!-- 動的に生成 -->
                         </div>
                         <div class="char-hint">
-                            <p>眉上げ: 次の文字 / 2回まばたき: 前の文字 / 口開け: 決定</p>
+                            <p>眉上げ: 次 ↓ / まばたき: 前 ↑ / 頭傾き: グループ移動 / 口開け: 決定</p>
                         </div>
-                    </div>
-                    <div class="special-chars">
-                        <span id="special-indicator" class="special-indicator"></span>
                     </div>
                 </div>
 
