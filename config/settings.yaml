@@ -1,0 +1,53 @@
+# 顔ジェスチャーコミュニケーションシステム - 全般設定
+
+# カメラ設定
+camera:
+  # カメラデバイスID（Mac本体カメラ: 1）
+  device_id: 1
+  # 解像度
+  width: 640
+  height: 480
+  # フレームレート
+  fps: 30
+
+# GUI設定
+gui:
+  # フルスクリーンモード
+  fullscreen: false
+  # フォントサイズ
+  font_size: 32
+  # 選択中の項目のハイライト色
+  highlight_color: "#00FF00"
+  # 背景色
+  background_color: "#1a1a2e"
+  # テキスト色
+  text_color: "#FFFFFF"
+
+# 音声合成設定
+audio:
+  # エンジン: pyttsx3 (オフライン) または gtts (オンライン)
+  engine: "pyttsx3"
+  # 読み上げ速度
+  rate: 150
+  # 音量 (0.0 - 1.0)
+  volume: 1.0
+  # 言語
+  language: "ja"
+
+# Audible設定
+audible:
+  # Audible機能を有効化
+  enabled: true
+  # 使用するブラウザ
+  browser: "chromium"
+  # スキップ秒数
+  skip_seconds: 30
+
+# システム設定
+system:
+  # デバッグモード
+  debug: false
+  # ログファイルの出力先
+  log_file: "logs/face_comm.log"
+  # 自動起動（Raspberry Pi用）
+  auto_start: false

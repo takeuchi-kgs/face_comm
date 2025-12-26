@@ -1,0 +1,116 @@
+# 顔ジェスチャーコミュニケーションシステム
+# Docker Compose 設定ファイル
+#
+# 使用方法:
+#   起動:     docker-compose up -d
+#   停止:     docker-compose down
+#   ログ確認: docker-compose logs -f
+#   再構築:   docker-compose up -d --build
+
+version: '3.8'
+
+services:
+  face-comm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: face-comm:latest
+    container_name: face-comm
+    
+    # 自動再起動（クラッシュ時やリブート後）
+    restart: always
+    
+    # 権限設定
+    privileged: true  # カメラアクセスに必要
+    
+    # ネットワーク設定
+    network_mode: host  # Audibleブラウザ制御用
+    
+    # 環境変数
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+      - TZ=Asia/Tokyo
+      # デバッグ用
+      - PYTHONUNBUFFERED=1
+    
+    # ボリュームマウント
+    volumes:
+      # X11ソケット（GUI表示用）
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      
+      # カメラデバイス
+      - /dev/video0:/dev/video0
+      
+      # 音声デバイス
+      - /dev/snd:/dev/snd
+      - /run/user/1000/pulse:/run/user/1000/pulse
+      
+      # 設定ファイル（永続化・カスタマイズ用）
+      - ./config:/app/config:rw
+      
+      # ログファイル（永続化）
+      - ./logs:/app/logs:rw
+      
+      # Chromiumプロファイル（Audibleログイン状態保持）
+      - ./browser_data:/home/facecomm/.config/chromium:rw
+    
+    # デバイスアクセス
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+    
+    # リソース制限（Raspberry Pi 4GB考慮）
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+    
+    # ヘルスチェック
+    healthcheck:
+      test: ["CMD", "python", "-c", "import cv2; cap = cv2.VideoCapture(0); print('OK' if cap.isOpened() else 'FAIL'); cap.release()"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # ログ設定
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# 開発・テスト用の追加サービス
+  # デバッグモード（カメラ映像を表示）
+  face-comm-debug:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: face-comm:latest
+    container_name: face-comm-debug
+    profiles:
+      - debug  # docker-compose --profile debug up で起動
+    
+    privileged: true
+    network_mode: host
+    
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - TZ=Asia/Tokyo
+    
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+      - ./config:/app/config:rw
+      - ./logs:/app/logs:rw
+    
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+    
+    # デバッグモードで起動
+    command: ["python", "src/gesture_detector.py", "--debug"]

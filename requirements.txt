@@ -1,0 +1,35 @@
+# 顔ジェスチャーコミュニケーションシステム - 依存関係
+# Python 3.9+ required
+
+# コア
+numpy>=1.21.0
+opencv-python-headless>=4.5.0  # Raspberry Pi用（GUIなし版）
+
+# 顔認識
+mediapipe>=0.10.0
+
+# GUI（いずれかを選択）
+PyQt5>=5.15.0
+# tkinter は標準ライブラリ
+
+# 音声合成
+pyttsx3>=2.90
+gTTS>=2.3.0  # オンライン音声合成（オプション）
+
+# Audible制御
+selenium>=4.0.0
+webdriver-manager>=3.8.0
+pyautogui>=0.9.53  # 代替手段として
+
+# 設定ファイル
+PyYAML>=6.0
+
+# ユーティリティ
+python-dotenv>=0.20.0
+
+# 開発・テスト
+pytest>=7.0.0
+pytest-cov>=3.0.0
+
+# ログ
+loguru>=0.6.0
