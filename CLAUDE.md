@@ -85,74 +85,63 @@
 ## プロジェクト構造
 
 ```
-face_comm_project/
-├── CLAUDE.md           # このファイル
-├── README.md           # プロジェクト説明
-├── Dockerfile          # Dockerイメージ定義
-├── docker-compose.yml  # コンテナ設定
-├── install.sh          # ワンクリックインストーラー
-├── uninstall.sh        # アンインストーラー
-├── requirements.txt    # Python依存関係
-├── setup.sh           # 環境セットアップスクリプト（非Docker用）
+face_comm/
+├── CLAUDE.md              # このファイル
+├── README.md              # プロジェクト説明
+├── pyproject.toml         # Python依存関係（uv管理）
 ├── config/
-│   ├── settings.yaml   # 全般設定
-│   ├── phrases.yaml    # 定型文リスト
-│   └── thresholds.yaml # ジェスチャー検出閾値
+│   ├── settings.yaml      # 全般設定
+│   ├── phrases.yaml       # 定型文リスト
+│   ├── thresholds.yaml    # ジェスチャー検出閾値
+│   └── melodies.yaml      # メロディ設定
 ├── src/
 │   ├── __init__.py
-│   ├── main.py         # メインエントリーポイント
-│   ├── gesture_detector.py  # 顔ジェスチャー検出
-│   ├── ui/
-│   │   ├── __init__.py
-│   │   ├── main_window.py   # メインGUI
-│   │   ├── menu_screen.py   # メニュー画面
-│   │   └── audible_screen.py # Audible操作画面
-│   ├── audio/
-│   │   ├── __init__.py
-│   │   └── speech.py        # 音声合成
-│   ├── controllers/
-│   │   ├── __init__.py
-│   │   ├── audible_controller.py  # Audible制御
-│   │   └── system_controller.py   # システム制御
-│   └── utils/
+│   ├── gesture_detector.py    # 顔ジェスチャー検出
+│   └── web/                   # Webアプリケーション
 │       ├── __init__.py
-│       ├── config_loader.py  # 設定読み込み
-│       └── logger.py         # ログ出力
-├── tests/
-│   ├── test_gesture.py       # ジェスチャー検出テスト
-│   └── test_calibration.py   # キャリブレーションテスト
-└── docs/
-    ├── setup_guide.md        # セットアップガイド
-    ├── user_manual.md        # 使用マニュアル
-    ├── operation_manual.md   # 運用マニュアル（サポート担当者向け）
-    └── cost_estimate.md      # 必要機材と費用概算
+│       ├── app.py             # FastAPIメイン
+│       ├── websocket_handler.py  # WebSocket処理
+│       └── frame_processor.py    # Base64デコード
+├── static/                    # フロントエンド
+│   ├── index.html             # メインHTML
+│   ├── css/
+│   │   └── main.css
+│   └── js/
+│       ├── app.js             # メインアプリ
+│       ├── camera.js          # カメラ制御
+│       ├── websocket.js       # WebSocket管理
+│       └── ui.js              # UI更新
+└── tests/
+    ├── test_gesture.py        # ジェスチャー検出テスト
+    └── test_calibration.py    # キャリブレーションテスト
 ```
 
 ## 開発フェーズ
 
-### Phase 1: 基礎（現在）✅ 部分完了
+### Phase 1: 基礎 ✅ 完了
 - [x] 要件定義
 - [x] ジェスチャー定義
 - [x] 基本的な顔認識コード作成
-- [ ] Raspberry Pi環境セットアップ
-- [ ] 動作確認・閾値調整
+- [x] 設定ファイル（YAML）の実装
 
-### Phase 2: コア機能
-- [ ] GestureDetectorクラスの完成
-- [ ] 設定ファイル（YAML）の実装
-- [ ] キャリブレーション機能
-- [ ] 基本GUI（メニュー画面）
+### Phase 2: コア機能 ✅ 完了
+- [x] GestureDetectorクラスの完成
+- [x] ジェスチャー検出閾値チューニング
+- [x] WebSocket通信基盤
 
-### Phase 3: 機能実装
-- [ ] はい/いいえモード
-- [ ] 定型文モード + 音声合成
-- [ ] Audible制御機能
+### Phase 3: 機能実装 ✅ 完了
+- [x] Webアプリ基盤（FastAPI + WebSocket）
+- [x] Yes/Noモード
+- [x] 自由入力モード（50音選択）
+- [x] 定型文モード + 音声合成（Web Speech API）
+- [x] メロディ選択モード
 
-### Phase 4: 改善・最適化
+### Phase 4: 改善・最適化（現在）
+- [ ] Raspberry Pi環境での動作確認
 - [ ] パフォーマンス最適化
 - [ ] エラーハンドリング強化
+- [ ] メロディ音声ファイルの追加
 - [ ] ユーザーテスト・フィードバック反映
-- [ ] ドキュメント整備
 
 ## 開発時の注意事項
 
@@ -275,12 +264,92 @@ gesture:
   cooldown: 1.0
 ```
 
+### 2024年12月26日 - Webアプリ実装
+
+#### 完了した作業
+
+1. **Webアプリ基盤構築**
+   - FastAPI + WebSocketによるリアルタイム通信
+   - ブラウザのカメラ映像をBase64でサーバーに送信
+   - サーバー側でMediaPipe Face Meshによるジェスチャー検出
+   - 検出結果をWebSocketでクライアントに返信
+
+2. **4つのモード実装**
+
+   **Yes/Noモード:**
+   - 頭の傾き（左/右）で「はい」「いいえ」を選択
+   - 口を開けて決定
+   - 回答履歴の表示
+
+   **自由入力モード:**
+   - 50音表による文字選択
+   - 頭の傾き: 行の切り替え（あ行→か行→...）
+   - 眉上げ: 次の文字
+   - ダブルまばたき: 前の文字
+   - 口開け: 文字決定
+   - 操作行: 読上げ、クリア、削除、空白、確定
+   - Web Speech APIによる読み上げ
+
+   **定型文モード:**
+   - カテゴリ・フレーズ選択
+   - 眉上げ/まばたきで項目選択
+   - 口開けで読み上げ
+
+   **メロディモード:**
+   - メロディ選択・再生/停止
+   - 頭傾き/眉上げ/まばたきで選択
+   - 口開けで再生/停止トグル
+
+3. **バグ修正・調整**
+   - numpy.bool_ → Python bool変換（JSON直列化エラー対応）
+   - 頭の傾き方向の左右入れ替え（カメラミラー対応）
+   - デバッグ用に検出値（EAR、MAR、眉位置、角度）を表示
+
+#### ファイル構成
+
+```
+face_comm/
+├── src/web/
+│   ├── __init__.py
+│   ├── app.py                 # FastAPIメイン
+│   ├── websocket_handler.py   # WebSocket処理
+│   └── frame_processor.py     # Base64デコード
+├── static/
+│   ├── index.html             # メインHTML
+│   ├── css/
+│   │   └── main.css
+│   └── js/
+│       ├── app.js             # メインアプリ
+│       ├── camera.js          # カメラ制御
+│       ├── websocket.js       # WebSocket管理
+│       └── ui.js              # UI更新
+└── config/
+    └── melodies.yaml          # メロディ設定
+```
+
+#### 起動コマンド
+```bash
+uv run uvicorn src.web.app:app --reload --host 0.0.0.0 --port 8000
+# または
+uv run face-comm-web
+# ブラウザで http://localhost:8000 にアクセス
+```
+
+#### ジェスチャー操作一覧
+
+| ジェスチャー | 操作 |
+|------------|------|
+| HEAD_TILT_LEFT | 次の項目（ユーザー視点で右傾き） |
+| HEAD_TILT_RIGHT | 前の項目（ユーザー視点で左傾き） |
+| EYEBROWS_RAISED | 次の項目 |
+| DOUBLE_BLINK | 前の項目 |
+| MOUTH_OPEN | 決定/確定/再生・停止 |
+
 #### 次のタスク
-1. GUI実装開始（PyQt5 または Tkinter）
-2. はい/いいえモードの実装
-3. 定型文モード + 音声合成
-4. Audible制御機能
-5. Raspberry Pi環境での動作確認
+1. Raspberry Pi環境での動作確認
+2. メロディ音声ファイルの追加
+3. パフォーマンス最適化
+4. エラーハンドリング強化
 
 ## コマンドリファレンス
 
