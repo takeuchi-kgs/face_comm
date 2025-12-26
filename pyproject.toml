@@ -9,6 +9,8 @@ dependencies = [
     "mediapipe>=0.10.0,<0.10.15",
     "numpy>=1.24.0",
     "pyyaml>=6.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
 ]
 
 [project.optional-dependencies]
@@ -25,3 +27,4 @@ audio = [
 [project.scripts]
 face-comm = "src.main:main"
 face-comm-debug = "src.gesture_detector:main"
+face-comm-web = "src.web.app:main"

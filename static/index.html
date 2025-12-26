@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顔ジェスチャー コミュニケーション</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>顔ジェスチャー コミュニケーション</h1>
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="yesno">Yes/No</button>
+                <button class="mode-tab" data-mode="freetext">自由入力</button>
+                <button class="mode-tab" data-mode="phrase">定型文</button>
+                <button class="mode-tab" data-mode="melody">メロディ</button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- カメラプレビュー -->
+            <div class="camera-section">
+                <div class="camera-container">
+                    <video id="camera-preview" autoplay playsinline muted></video>
+                    <canvas id="capture-canvas" style="display: none;"></canvas>
+                    <div id="face-status" class="face-status">
+                        <span class="status-icon">?</span>
+                        <span class="status-text">カメラを起動中...</span>
+                    </div>
+                </div>
+                <div class="gesture-info">
+                    <div class="gesture-item">
+                        <span class="gesture-label">目:</span>
+                        <span id="eye-status" class="gesture-value">---</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-label">口:</span>
+                        <span id="mouth-status" class="gesture-value">---</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-label">眉:</span>
+                        <span id="eyebrow-status" class="gesture-value">---</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="gesture-label">頭:</span>
+                        <span id="head-status" class="gesture-value">---</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- モードコンテンツ -->
+            <div class="mode-content">
+                <!-- Yes/No モード -->
+                <div id="yesno-mode" class="mode-panel active">
+                    <div class="yesno-question">
+                        <p id="current-question">質問を入力してください</p>
+                        <input type="text" id="question-input" placeholder="質問を入力...">
+                        <button id="ask-button">質問する</button>
+                    </div>
+                    <div class="yesno-buttons">
+                        <div class="yesno-option yes-option" id="yes-option">
+                            <div class="option-icon">&#x2713;</div>
+                            <div class="option-label">はい</div>
+                            <div class="option-hint">左に傾ける</div>
+                        </div>
+                        <div class="yesno-option no-option" id="no-option">
+                            <div class="option-icon">&#x2717;</div>
+                            <div class="option-label">いいえ</div>
+                            <div class="option-hint">右に傾ける</div>
+                        </div>
+                    </div>
+                    <div class="confirm-hint">
+                        <p>選択後、口を開けて決定</p>
+                    </div>
+                    <div class="answer-history" id="answer-history">
+                        <h3>回答履歴</h3>
+                        <ul id="history-list"></ul>
+                    </div>
+                </div>
+
+                <!-- 自由入力モード -->
+                <div id="freetext-mode" class="mode-panel">
+                    <div class="freetext-input-area">
+                        <div class="input-display">
+                            <span id="input-text"></span>
+                            <span class="cursor">|</span>
+                        </div>
+                        <div class="input-actions">
+                            <button id="speak-text-btn" class="action-btn">読み上げ</button>
+                            <button id="clear-text-btn" class="action-btn">クリア</button>
+                        </div>
+                    </div>
+                    <div class="char-selector">
+                        <div class="row-selector">
+                            <span class="nav-hint">◀ 左傾き: 前の行</span>
+                            <span id="current-row" class="current-row">あ行</span>
+                            <span class="nav-hint">右傾き: 次の行 ▶</span>
+                        </div>
+                        <div class="char-grid" id="char-grid">
+                            <!-- 動的に生成 -->
+                        </div>
+                        <div class="char-hint">
+                            <p>眉上げ: 次の文字 / 2回まばたき: 前の文字 / 口開け: 決定</p>
+                        </div>
+                    </div>
+                    <div class="special-chars">
+                        <span id="special-indicator" class="special-indicator"></span>
+                    </div>
+                </div>
+
+                <!-- 定型文モード -->
+                <div id="phrase-mode" class="mode-panel">
+                    <div class="phrase-category">
+                        <span class="nav-hint">◀ 左傾き</span>
+                        <span id="current-category">基本</span>
+                        <span class="nav-hint">右傾き ▶</span>
+                    </div>
+                    <div class="phrase-list" id="phrase-list">
+                        <!-- 動的に生成 -->
+                    </div>
+                    <div class="phrase-selected">
+                        <p>選択中: <strong id="selected-phrase">---</strong></p>
+                        <p class="hint">眉上げ: 次 / 2回まばたき: 前 / 口開け: 決定</p>
+                    </div>
+                </div>
+
+                <!-- メロディモード -->
+                <div id="melody-mode" class="mode-panel">
+                    <div class="melody-list" id="melody-list">
+                        <!-- 動的に生成 -->
+                    </div>
+                    <div class="melody-player">
+                        <div class="player-status" id="player-status">停止中</div>
+                        <div class="now-playing">
+                            <span id="now-playing-name">---</span>
+                        </div>
+                        <p class="hint">眉上げ/右傾き: 次 / 2回まばたき/左傾き: 前 / 口開け: 再生/停止</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- フッター -->
+        <footer class="footer">
+            <div class="connection-status">
+                <span id="connection-indicator" class="indicator disconnected"></span>
+                <span id="connection-text">未接続</span>
+            </div>
+            <div class="last-gesture">
+                最後のジェスチャー: <span id="last-gesture">---</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 通知表示 -->
+    <div id="notification" class="notification hidden">
+        <span id="notification-text"></span>
+    </div>
+
+    <script src="/static/js/camera.js"></script>
+    <script src="/static/js/websocket.js"></script>
+    <script src="/static/js/ui.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

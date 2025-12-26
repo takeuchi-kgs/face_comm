@@ -1,0 +1,18 @@
+# メロディ設定ファイル
+
+melodies:
+  - name: "呼び出しベル"
+    file: "bell.mp3"
+    description: "注意を引くためのベル音"
+
+  - name: "緊急アラート"
+    file: "alert.mp3"
+    description: "緊急時の呼び出し"
+
+  - name: "やさしいチャイム"
+    file: "chime.mp3"
+    description: "穏やかな呼び出し音"
+
+  - name: "確認音"
+    file: "confirm.mp3"
+    description: "了解・確認を伝える音"
