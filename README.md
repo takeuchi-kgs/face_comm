@@ -1,79 +1,168 @@
 # 顔ジェスチャーコミュニケーションシステム
 
-体が不自由で話すことができない方が、顔の動きを使ってコミュニケーションを取るためのシステムです。
+体が不自由で話すことができない方が、顔の動きを使ってコミュニケーションを取るためのWebアプリケーションです。
 
 ## 特徴
 
 - **顔の動きだけで操作**: まばたき、眉の上下、口の開閉、頭の傾きを認識
-- **安価な構成**: Raspberry Pi 4 + USBカメラで動作（約2.5〜4万円）
-- **簡単セットアップ**: Docker化により`./install.sh`で一発インストール
-- **自動運用**: 定期リブート・自動復旧で安定稼働
-- **Audible連携**: 本の読み上げサービスを顔の動きで操作
+- **ブラウザベース**: Webアプリなので特別なソフトのインストール不要
+- **音声読み上げ**: 入力したテキストを音声で読み上げ
+- **4つのモード**: Yes/No回答、自由文入力、定型文選択、メロディ再生
 
 ## 対応ジェスチャー
 
 | ジェスチャー | 動作 |
 |-------------|------|
-| 2回連続まばたき | はい / 決定 |
-| 目を1秒以上閉じる | いいえ / キャンセル |
-| 眉を上げる | メニュー表示 |
-| 口を開ける | 選択確定 |
-| 頭を左に傾ける | 前へ / 戻る |
-| 頭を右に傾ける | 次へ / 進む |
+| 眉を上げる | 次の項目 |
+| 2回連続まばたき | 前の項目 |
+| 頭を左に傾ける | 前のグループ |
+| 頭を右に傾ける | 次のグループ |
+| 口を開ける | 決定 / 確定 |
 
 ## 必要なハードウェア
 
-- Raspberry Pi 4 (4GB以上推奨)
+- Raspberry Pi 4 (4GB以上推奨) または PC
 - USBカメラ
-- モニター (HDMI接続)
-- スピーカー
+- モニター
+- スピーカー（読み上げ用）
 
-詳細は [必要機材と費用概算](docs/cost_estimate.md) を参照してください。
+## クイックスタート
 
-## クイックスタート（Docker版・推奨）
+### 1. リポジトリをクローン
 
 ```bash
-# 1. プロジェクトを展開
-unzip face_comm_project.zip
-cd face_comm_project
-
-# 2. インストール（root権限で実行）
-sudo ./install.sh
-
-# 3. 再起動
-sudo reboot
-
-# 以降は自動で起動・運用されます
+git clone https://github.com/YOUR_USERNAME/face_comm.git
+cd face_comm
 ```
 
-## 手動セットアップ（開発用）
+### 2. セットアップスクリプトを実行
 
 ```bash
-# 環境セットアップ
 chmod +x setup.sh
 ./setup.sh
-
-# 仮想環境をアクティベート
-source venv/bin/activate
-
-# アプリケーションを起動
-python src/main.py
 ```
 
-## ドキュメント
+これにより以下が自動的に行われます：
+- システムパッケージのインストール（Linux/Raspberry Piのみ）
+- uv（Pythonパッケージマネージャ）のインストール
+- Python依存関係のインストール
+- 設定ファイルの確認
 
-- [セットアップガイド](docs/setup_guide.md) - 初期設定の詳細
-- [使用マニュアル](docs/user_manual.md) - 利用者向け操作説明
-- [運用マニュアル](docs/operation_manual.md) - サポート担当者向け
-- [必要機材と費用概算](docs/cost_estimate.md) - 購入ガイド
+### 3. アプリケーションを起動
 
-## 自動運用について
+```bash
+uv run face-comm-web
+```
 
-インストール後は以下が自動化されます：
+### 4. ブラウザでアクセス
 
-- **自動起動**: Raspberry Pi起動時にシステムが立ち上がる
-- **自動復旧**: アプリがクラッシュしても自動再起動
-- **定期リブート**: 毎日深夜0時に自動リブート
+```
+http://localhost:8000
+```
+
+他のデバイス（スマホ、タブレット）からアクセスする場合：
+```
+http://<Raspberry PiのIPアドレス>:8000
+```
+
+## 機能説明
+
+### Yes/Noモード
+質問に対して「はい」「いいえ」で回答するモード。
+- 頭を左に傾ける → 「はい」を選択
+- 頭を右に傾ける → 「いいえ」を選択
+- 口を開ける → 決定
+
+### 自由入力モード
+50音から文字を選んで自由にテキストを入力するモード。
+- 眉上げ / まばたき → 文字を上下に移動
+- 頭の傾き → グループ間をジャンプ（あ行→か行→...）
+- 口を開ける → 文字を決定
+
+### 定型文モード
+よく使うフレーズを選択して読み上げるモード。
+
+### メロディモード
+メロディを選択して再生するモード。
+
+## 自動起動設定（Raspberry Pi）
+
+セットアップスクリプト実行後、以下のコマンドで自動起動を設定できます：
+
+```bash
+sudo cp face-comm.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable face-comm
+sudo systemctl start face-comm
+```
+
+サービスの状態確認：
+```bash
+sudo systemctl status face-comm
+```
+
+ログの確認：
+```bash
+journalctl -u face-comm -f
+```
+
+## 設定ファイル
+
+| ファイル | 説明 |
+|---------|------|
+| `config/thresholds.yaml` | ジェスチャー検出の閾値設定 |
+| `config/phrases.yaml` | 定型文リスト |
+| `config/melodies.yaml` | メロディ設定 |
+
+## 技術スタック
+
+- **バックエンド**: Python, FastAPI, WebSocket
+- **顔認識**: MediaPipe Face Mesh
+- **フロントエンド**: HTML, CSS, JavaScript
+- **音声合成**: Web Speech API
+
+## ディレクトリ構成
+
+```
+face_comm/
+├── setup.sh              # セットアップスクリプト
+├── pyproject.toml        # Python依存関係
+├── config/               # 設定ファイル
+│   ├── thresholds.yaml
+│   ├── phrases.yaml
+│   └── melodies.yaml
+├── src/
+│   ├── gesture_detector.py   # ジェスチャー検出
+│   └── web/                  # Webアプリ
+│       ├── app.py
+│       ├── websocket_handler.py
+│       └── frame_processor.py
+└── static/               # フロントエンド
+    ├── index.html
+    ├── css/
+    └── js/
+```
+
+## トラブルシューティング
+
+### カメラが認識されない
+```bash
+# カメラデバイスの確認
+ls -la /dev/video*
+
+# Raspberry Piでカメラが無効の場合
+sudo raspi-config
+# Interface Options → Camera → Enable
+```
+
+### ジェスチャーが検出されにくい
+- 照明を明るくする
+- カメラと顔の距離を50cm〜1m程度に調整
+- `config/thresholds.yaml`の閾値を調整
+
+### 音声が出ない
+- ブラウザの音声許可を確認
+- システムのスピーカー設定を確認
 
 ## ライセンス
 
