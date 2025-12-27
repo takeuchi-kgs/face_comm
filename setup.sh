@@ -71,7 +71,7 @@ else
         libhdf5-serial-dev \
         libharfbuzz0b \
         libwebp-dev \
-        libtiff5 \
+        libtiff6 \
         libopenexr-dev \
         libgstreamer1.0-dev \
         libavcodec-dev \
