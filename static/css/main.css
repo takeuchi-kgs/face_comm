@@ -146,6 +146,38 @@ body {
     color: #4ecca3;
 }
 
+/* ジェスチャー状態別の色 */
+/* 目・口: 開=緑、閉=赤 */
+.gesture-value.state-open {
+    color: #2ecc71 !important;  /* 緑: 開いている */
+}
+
+.gesture-value.state-closed {
+    color: #e74c3c !important;  /* 赤: 閉じている */
+}
+
+/* 頭の傾き: 左=青、中央=緑、右=オレンジ */
+.gesture-value.state-left {
+    color: #3498db !important;  /* 青: 左 */
+}
+
+.gesture-value.state-right {
+    color: #e67e22 !important;  /* オレンジ: 右 */
+}
+
+.gesture-value.state-center {
+    color: #2ecc71 !important;  /* 緑: 中央 */
+}
+
+/* 眉: 通常=緑、上げ=赤 */
+.gesture-value.state-raised {
+    color: #e74c3c !important;  /* 赤: 上げている */
+}
+
+.gesture-value.state-normal {
+    color: #2ecc71 !important;  /* 緑: 通常 */
+}
+
 /* モードコンテンツ */
 .mode-content {
     display: flex;

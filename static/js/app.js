@@ -355,16 +355,16 @@ class FaceCommApp {
                 break;
 
             case 'DOUBLE_BLINK':
-                // 前の定型文
+                // 次の定型文
                 this.phraseState.phraseIndex =
-                    (this.phraseState.phraseIndex - 1 + phrases.length) % phrases.length;
+                    (this.phraseState.phraseIndex + 1) % phrases.length;
                 this._updatePhraseDisplay();
                 break;
 
             case 'EYEBROWS_RAISED':
-                // 次の定型文
+                // 前の定型文
                 this.phraseState.phraseIndex =
-                    (this.phraseState.phraseIndex + 1) % phrases.length;
+                    (this.phraseState.phraseIndex - 1 + phrases.length) % phrases.length;
                 this._updatePhraseDisplay();
                 break;
 
@@ -398,16 +398,16 @@ class FaceCommApp {
 
         switch (gesture.type) {
             case 'HEAD_TILT_RIGHT':
-            case 'DOUBLE_BLINK':
-                // 前のメロディ（ユーザーから見て左に傾ける or ダブルまばたき）
+            case 'EYEBROWS_RAISED':
+                // 前のメロディ（ユーザーから見て左に傾ける or 眉上げ）
                 this.melodyState.selectedIndex =
                     (this.melodyState.selectedIndex - 1 + this.config.melodies.length) % this.config.melodies.length;
                 this.ui.updateMelodyList(this.config.melodies, this.melodyState.selectedIndex);
                 break;
 
             case 'HEAD_TILT_LEFT':
-            case 'EYEBROWS_RAISED':
-                // 次のメロディ（ユーザーから見て右に傾ける or 眉上げ）
+            case 'DOUBLE_BLINK':
+                // 次のメロディ（ユーザーから見て右に傾ける or ダブルまばたき）
                 this.melodyState.selectedIndex =
                     (this.melodyState.selectedIndex + 1) % this.config.melodies.length;
                 this.ui.updateMelodyList(this.config.melodies, this.melodyState.selectedIndex);

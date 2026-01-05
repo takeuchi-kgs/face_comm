@@ -127,6 +127,8 @@ class UIController {
                 const leftEar = state.left_eye_ar !== undefined ? state.left_eye_ar.toFixed(3) : '---';
                 const rightEar = state.right_eye_ar !== undefined ? state.right_eye_ar.toFixed(3) : '---';
                 this.eyeStatus.textContent = `${eyeText} (L:${leftEar} R:${rightEar})`;
+                // 状態クラスを設定
+                this.eyeStatus.className = 'gesture-value ' + (state.eyes_closed ? 'state-closed' : 'state-open');
             }
 
             // 口の状態（MAR値も表示）
@@ -134,6 +136,8 @@ class UIController {
                 const mouthText = state.mouth_open ? '開いている' : '閉じている';
                 const mar = state.mouth_ar !== undefined ? state.mouth_ar.toFixed(3) : '---';
                 this.mouthStatus.textContent = `${mouthText} (${mar})`;
+                // 状態クラスを設定（口は開=赤、閉=緑で逆）
+                this.mouthStatus.className = 'gesture-value ' + (state.mouth_open ? 'state-closed' : 'state-open');
             }
 
             // 眉の状態（数値も表示）
@@ -141,25 +145,44 @@ class UIController {
                 const eyebrowText = state.eyebrows_raised ? '上げている' : '通常';
                 const eyebrowValue = state.eyebrow_position !== undefined ? state.eyebrow_position.toFixed(4) : '---';
                 this.eyebrowStatus.textContent = `${eyebrowText} (${eyebrowValue})`;
+                // 状態クラスを設定
+                this.eyebrowStatus.className = 'gesture-value ' + (state.eyebrows_raised ? 'state-raised' : 'state-normal');
             }
 
             // 頭の傾き（角度も表示）
             if (this.headStatus) {
                 let headText = '中央';
+                let stateClass = 'state-center';
                 if (state.head_tilt_left) {
                     headText = '左';
+                    stateClass = 'state-left';
                 } else if (state.head_tilt_right) {
                     headText = '右';
+                    stateClass = 'state-right';
                 }
                 const angle = state.head_tilt_angle !== undefined ? state.head_tilt_angle.toFixed(1) : '---';
                 this.headStatus.textContent = `${headText} (${angle}°)`;
+                // 状態クラスを設定
+                this.headStatus.className = 'gesture-value ' + stateClass;
             }
         } else {
             // 顔が検出されていない場合はリセット
-            if (this.eyeStatus) this.eyeStatus.textContent = '---';
-            if (this.mouthStatus) this.mouthStatus.textContent = '---';
-            if (this.eyebrowStatus) this.eyebrowStatus.textContent = '---';
-            if (this.headStatus) this.headStatus.textContent = '---';
+            if (this.eyeStatus) {
+                this.eyeStatus.textContent = '---';
+                this.eyeStatus.className = 'gesture-value';
+            }
+            if (this.mouthStatus) {
+                this.mouthStatus.textContent = '---';
+                this.mouthStatus.className = 'gesture-value';
+            }
+            if (this.eyebrowStatus) {
+                this.eyebrowStatus.textContent = '---';
+                this.eyebrowStatus.className = 'gesture-value';
+            }
+            if (this.headStatus) {
+                this.headStatus.textContent = '---';
+                this.headStatus.className = 'gesture-value';
+            }
         }
     }
 
